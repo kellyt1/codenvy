@@ -74,99 +74,100 @@ import static com.mongodb.client.model.Filters.in;
  * @author Sergii Leschenko
  */
 @Singleton
-public class CommonPermissionStorage implements PermissionsStorage {
-    private final MongoCollection<PermissionsImpl> collection;
-
-    private final Map<String, AbstractPermissionsDomain> idToDomain;
+public class CommonPermissionStorage { // implements PermissionsStorage {
+//    private final MongoCollection<PermissionsImpl> collection;
+//
+//    private final Map<String, AbstractPermissionsDomain> idToDomain;
 
     @Inject
-    public CommonPermissionStorage(@Named("mongo.db.organization") MongoDatabase database,
-                                   @Named("organization.storage.db.permission.collection") String collectionName,
-                                   @CommonDomains Set<AbstractPermissionsDomain> permissionsDomains) throws IOException {
-        collection = database.getCollection(collectionName, PermissionsImpl.class);
-        collection.createIndex(new Document("user", 1).append("domain", 1).append("instance", 1), new IndexOptions().unique(true));
-
-        final ImmutableMap.Builder<String, AbstractPermissionsDomain> mapBuilder = ImmutableMap.builder();
-        permissionsDomains.stream()
-                          .forEach(domain -> mapBuilder.put(domain.getId(), domain));
-        idToDomain = mapBuilder.build();
+    public CommonPermissionStorage(//@Named("mongo.db.organization") MongoDatabase database,
+                                   //@Named("organization.storage.db.permission.collection") String collectionName,
+                                   //@CommonDomains Set<AbstractPermissionsDomain> permissionsDomains)
+    ) throws IOException {
+//        collection = database.getCollection(collectionName, PermissionsImpl.class);
+//        collection.createIndex(new Document("user", 1).append("domain", 1).append("instance", 1), new IndexOptions().unique(true));
+//
+//        final ImmutableMap.Builder<String, AbstractPermissionsDomain> mapBuilder = ImmutableMap.builder();
+//        permissionsDomains.stream()
+//                          .forEach(domain -> mapBuilder.put(domain.getId(), domain));
+//        idToDomain = mapBuilder.build();
     }
 
-    @Override
-    public Set<AbstractPermissionsDomain> getDomains() {
-        return new HashSet<>(idToDomain.values());
-    }
+//    @Override
+//    public Set<AbstractPermissionsDomain> getDomains() {
+//        return new HashSet<>(idToDomain.values());
+//    }
 
-    @Override
-    public void store(PermissionsImpl permissions) throws ServerException {
-        try {
-            collection.replaceOne(and(eq("user", permissions.getUser()),
-                                      eq("domain", permissions.getDomain()),
-                                      eq("instance", permissions.getInstance())),
-                                  permissions,
-                                  new UpdateOptions().upsert(true));
-        } catch (MongoException e) {
-            throw new ServerException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void remove(String user, String domain, String instance) throws ServerException, NotFoundException {
-        try {
-            final DeleteResult deleteResult = collection.deleteOne(and(eq("user", user),
-                                                                       eq("domain", domain),
-                                                                       eq("instance", instance)));
-            if (deleteResult.getDeletedCount() == 0) {
-                throw new NotFoundException(String.format("Permissions for user '%s' and instance '%s' of domain '%s' was not found",
-                                                          user, instance, domain));
-            }
-        } catch (MongoException e) {
-            throw new ServerException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public PermissionsImpl get(String user, String domain, String instance) throws ServerException, NotFoundException {
-        PermissionsImpl found;
-        try {
-            found = collection.find(and(eq("user", user),
-                                        eq("domain", domain),
-                                        eq("instance", instance)))
-                              .first();
-        } catch (MongoException e) {
-            throw new ServerException(e.getMessage(), e);
-        }
-
-        if (found == null) {
-            throw new NotFoundException(String.format("Permissions for user '%s' and instance '%s' of domain '%s' was not found",
-                                                      user, instance, domain));
-        }
-
-        return found;
-    }
-
-    @Override
-    public List<PermissionsImpl> getByInstance(String domain, String instance) throws ServerException {
-        try {
-            return collection.find(and(eq("domain", domain),
-                                       eq("instance", instance)))
-                             .into(new ArrayList<>());
-        } catch (MongoException e) {
-            throw new ServerException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public boolean exists(String user, String domain, String instance, String requiredAction) throws ServerException {
-        try {
-            final Permissions found = collection.find(and(eq("user", user),
-                                                          eq("domain", domain),
-                                                          eq("instance", instance),
-                                                          in("actions", requiredAction)))
-                                                .first();
-            return found != null;
-        } catch (MongoException e) {
-            throw new ServerException(e.getMessage(), e);
-        }
-    }
+//    @Override
+//    public void store(PermissionsImpl permissions) throws ServerException {
+//        try {
+//            collection.replaceOne(and(eq("user", permissions.getUser()),
+//                                      eq("domain", permissions.getDomain()),
+//                                      eq("instance", permissions.getInstance())),
+//                                  permissions,
+//                                  new UpdateOptions().upsert(true));
+//        } catch (MongoException e) {
+//            throw new ServerException(e.getMessage(), e);
+//        }
+//    }
+//
+//    @Override
+//    public void remove(String user, String domain, String instance) throws ServerException, NotFoundException {
+//        try {
+//            final DeleteResult deleteResult = collection.deleteOne(and(eq("user", user),
+//                                                                       eq("domain", domain),
+//                                                                       eq("instance", instance)));
+//            if (deleteResult.getDeletedCount() == 0) {
+//                throw new NotFoundException(String.format("Permissions for user '%s' and instance '%s' of domain '%s' was not found",
+//                                                          user, instance, domain));
+//            }
+//        } catch (MongoException e) {
+//            throw new ServerException(e.getMessage(), e);
+//        }
+//    }
+//
+//    @Override
+//    public PermissionsImpl get(String user, String domain, String instance) throws ServerException, NotFoundException {
+//        PermissionsImpl found;
+//        try {
+//            found = collection.find(and(eq("user", user),
+//                                        eq("domain", domain),
+//                                        eq("instance", instance)))
+//                              .first();
+//        } catch (MongoException e) {
+//            throw new ServerException(e.getMessage(), e);
+//        }
+//
+//        if (found == null) {
+//            throw new NotFoundException(String.format("Permissions for user '%s' and instance '%s' of domain '%s' was not found",
+//                                                      user, instance, domain));
+//        }
+//
+//        return found;
+//    }
+//
+//    @Override
+//    public List<PermissionsImpl> getByInstance(String domain, String instance) throws ServerException {
+//        try {
+//            return collection.find(and(eq("domain", domain),
+//                                       eq("instance", instance)))
+//                             .into(new ArrayList<>());
+//        } catch (MongoException e) {
+//            throw new ServerException(e.getMessage(), e);
+//        }
+//    }
+//
+//    @Override
+//    public boolean exists(String user, String domain, String instance, String requiredAction) throws ServerException {
+//        try {
+//            final Permissions found = collection.find(and(eq("user", user),
+//                                                          eq("domain", domain),
+//                                                          eq("instance", instance),
+//                                                          in("actions", requiredAction)))
+//                                                .first();
+//            return found != null;
+//        } catch (MongoException e) {
+//            throw new ServerException(e.getMessage(), e);
+//        }
+//    }
 }

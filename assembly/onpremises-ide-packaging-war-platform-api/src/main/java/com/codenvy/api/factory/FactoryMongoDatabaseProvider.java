@@ -39,24 +39,26 @@ import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
  *
  *
  */
-public class FactoryMongoDatabaseProvider implements Provider<MongoDatabase> {
-    private final MongoDatabase database;
+public class FactoryMongoDatabaseProvider { //implements Provider<MongoDatabase> {
+//    private final MongoDatabase database;
 
     @Inject
-    public FactoryMongoDatabaseProvider(@Named("factory.storage.db.url") String dbUrl,
-                                        @Named("factory.storage.db.name") String dbName,
-                                        @Named("factory.storage.db.username") String username,
-                                        @Named("factory.storage.db.password") String password,
-                                        Set<CodecProvider> codecProviders) {
-        final MongoCredential credential = createCredential(username, dbName, password.toCharArray());
-        final MongoClient mongoClient = new MongoClient(new ServerAddress(dbUrl), singletonList(credential));
-        database = mongoClient.getDatabase(dbName)
-                              .withCodecRegistry(fromRegistries(CodecRegistries.fromProviders(new ArrayList<>(codecProviders)),
-                                                                MongoClient.getDefaultCodecRegistry()));
+    public FactoryMongoDatabaseProvider(//@Named("factory.storage.db.url") String dbUrl,
+//                                        @Named("factory.storage.db.name") String dbName,
+//                                        @Named("factory.storage.db.username") String username,
+//                                        @Named("factory.storage.db.password") String password,
+//                                        Set<CodecProvider> codecProviders
+    ) {
+//        final MongoCredential credential = createCredential(username, dbName, password.toCharArray());
+//        final MongoClient mongoClient = new MongoClient(new ServerAddress(dbUrl), singletonList(credential));
+//        database = mongoClient.getDatabase(dbName)
+//                              .withCodecRegistry(fromRegistries(CodecRegistries.fromProviders(new ArrayList<>(codecProviders)),
+//                                                                MongoClient.getDefaultCodecRegistry()));
     }
 
-    @Override
-    public MongoDatabase get() {
-        return database;
-    }
+//    @Override
+//    public MongoDatabase get() {
+
+//        return database;
+//    }
 }

@@ -27,7 +27,7 @@ import javax.inject.Singleton;
  */
 @Deprecated
 @Singleton
-public class OrganizationMongoDBProvider extends MongoDBProvider {
+public class OrganizationMongoDBProvider { //extends MongoDBProvider {
 
     protected static final String DB_URL      = "organization.storage.db.url";
     protected static final String DB_NAME     = "organization.storage.db.name";
@@ -35,15 +35,16 @@ public class OrganizationMongoDBProvider extends MongoDBProvider {
     protected static final String DB_PASSWORD = "organization.storage.db.password";
 
     @Inject
-    public OrganizationMongoDBProvider(@Named(DB_URL) String dbUrl,
-                                       @Named(DB_NAME) String dbName,
-                                       @Named(DB_USERNAME) String username,
-                                       @Named(DB_PASSWORD) String password) {
-        super(dbUrl, dbName, username, password);
+    public OrganizationMongoDBProvider(//@Named(DB_URL) String dbUrl,
+                                       //@Named(DB_NAME) String dbName,
+                                       //@Named(DB_USERNAME) String username,
+                                       //@Named(DB_PASSWORD) String password
+    ) {
+        //super(dbUrl, dbName, username, password);
     }
 
-    @Override
-    public DB get() {
-        return super.get();
-    }
+//    @Override
+//    public DB get() {
+//        return super.get();
+//    }
 }

@@ -27,14 +27,14 @@ import java.util.Set;
  * @author Eugene Voevodin
  */
 @Singleton
-public class OrganizationMongoDatabaseProvider extends MongoDatabaseProvider {
+public class OrganizationMongoDatabaseProvider { //extends MongoDatabaseProvider {
 
-    @Inject
-    public OrganizationMongoDatabaseProvider(@Named("organization.storage.db.url") String dbUrl,
-                                             @Named("organization.storage.db.name") String dbName,
-                                             @Named("organization.storage.db.username") String username,
-                                             @Named("organization.storage.db.password") String password,
-                                             Set<CodecProvider> codecProviders) {
-        super(dbUrl, dbName, username, password, codecProviders);
-    }
+//    @Inject
+//    public OrganizationMongoDatabaseProvider(@Named("organization.storage.db.url") String dbUrl,
+//                                             @Named("organization.storage.db.name") String dbName,
+//                                             @Named("organization.storage.db.username") String username,
+//                                             @Named("organization.storage.db.password") String password,
+//                                             Set<CodecProvider> codecProviders) {
+//        super(dbUrl, dbName, username, password, codecProviders);
+//    }
 }

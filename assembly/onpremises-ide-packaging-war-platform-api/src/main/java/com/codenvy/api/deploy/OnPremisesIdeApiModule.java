@@ -49,6 +49,9 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 import com.mongodb.client.MongoDatabase;
 import com.palominolabs.metrics.guice.InstrumentationModule;
 
+import org.eclipse.che.account.api.AccountManager;
+import org.eclipse.che.account.spi.AccountDao;
+import org.eclipse.che.account.spi.jpa.JpaAccountDao;
 import org.eclipse.che.api.auth.AuthenticationDao;
 import org.eclipse.che.api.auth.AuthenticationService;
 import org.eclipse.che.api.core.jdbc.jpa.eclipselink.EntityListenerInjectionManagerInitializer;
@@ -145,14 +148,14 @@ public class OnPremisesIdeApiModule extends AbstractModule {
         bind(org.eclipse.che.api.auth.oauth.OAuthTokenProvider.class).to(OAuthAuthenticatorTokenProvider.class);
 
         //factory
-        bind(com.mongodb.DB.class).annotatedWith(Names.named("mongo.db.organization"))
-                                  .toProvider(com.codenvy.api.dao.mongo.OrganizationMongoDBProvider.class);
+//        bind(com.mongodb.DB.class).annotatedWith(Names.named("mongo.db.organization"))
+//                                  .toProvider(com.codenvy.api.dao.mongo.OrganizationMongoDBProvider.class);
+//
+//        bind(MongoDatabase.class).annotatedWith(Names.named("mongo.db.organization"))
+//                                 .toProvider(OrganizationMongoDatabaseProvider.class);
 
-        bind(MongoDatabase.class).annotatedWith(Names.named("mongo.db.organization"))
-                                 .toProvider(OrganizationMongoDatabaseProvider.class);
-
-        bind(MongoDatabase.class).annotatedWith(Names.named("mongo.db.factory"))
-                                 .toProvider(FactoryMongoDatabaseProvider.class);
+//        bind(MongoDatabase.class).annotatedWith(Names.named("mongo.db.factory"))
+//                                 .toProvider(FactoryMongoDatabaseProvider.class);
 
 
         bind(FactoryAcceptValidator.class).to(org.eclipse.che.api.factory.server.impl.FactoryAcceptValidatorImpl.class);
@@ -190,8 +193,10 @@ public class OnPremisesIdeApiModule extends AbstractModule {
         install(new OnPremisesWorkspaceJpaModule());
         install(new MachineJpaModule());
         bind(FactoryDao.class).to(JpaFactoryDao.class);
-        bind(AuthenticationDao.class).to(com.codenvy.api.dao.authentication.AuthenticationDaoImpl.class);
+        bind(AccountDao.class).to(JpaAccountDao.class);
+        bind(AccountManager.class);
         bind(AdminUserDao.class).to(com.codenvy.api.dao.jpa.JpaAdminUserDao.class);
+        bind(AuthenticationDao.class).to(com.codenvy.api.dao.authentication.AuthenticationDaoImpl.class);
         bind(RecipeLoader.class);
         final Multibinder<String> recipeBinder = Multibinder.newSetBinder(binder(), String.class, Names.named("predefined.recipe.path"));
         recipeBinder.addBinding().toProvider(RecipeProvider.class);
@@ -292,11 +297,11 @@ public class OnPremisesIdeApiModule extends AbstractModule {
         install(new InstrumentationModule());
         bind(org.eclipse.che.api.ssh.server.SshService.class);
         bind(org.eclipse.che.api.machine.server.MachineService.class);
-        bind(com.mongodb.DB.class).annotatedWith(Names.named("mongo.db.machine"))
-                                  .toProvider(com.codenvy.api.dao.mongo.MachineMongoDBProvider.class);
+//        bind(com.mongodb.DB.class).annotatedWith(Names.named("mongo.db.machine"))
+//                                  .toProvider(com.codenvy.api.dao.mongo.MachineMongoDBProvider.class);
 
-        bind(MongoDatabase.class).annotatedWith(Names.named("mongo.db.machine"))
-                                 .toProvider(MachineMongoDatabaseProvider.class);
+//        bind(MongoDatabase.class).annotatedWith(Names.named("mongo.db.machine"))
+//                                 .toProvider(MachineMongoDatabaseProvider.class);
 
         install(new ScheduleModule());
 

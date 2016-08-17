@@ -27,7 +27,7 @@ import java.util.Set;
  * @author Eugene Voevodin
  */
 @Singleton
-public class MachineMongoDatabaseProvider extends MongoDatabaseProvider {
+public class MachineMongoDatabaseProvider { // extends MongoDatabaseProvider {
 
     @Inject
     public MachineMongoDatabaseProvider(@Named("storage.machine.db.url") String dbUrl,
@@ -35,6 +35,6 @@ public class MachineMongoDatabaseProvider extends MongoDatabaseProvider {
                                         @Named("storage.machine.db.username") String username,
                                         @Named("storage.machine.db.password") String password,
                                         Set<CodecProvider> codecProviders) {
-        super(dbUrl, dbName, username, password, codecProviders);
+        //super(dbUrl, dbName, username, password, codecProviders);
     }
 }

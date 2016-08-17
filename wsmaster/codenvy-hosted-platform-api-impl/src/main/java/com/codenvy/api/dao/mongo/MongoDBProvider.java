@@ -33,32 +33,33 @@ import static java.util.Collections.singletonList;
 
 @Deprecated
 @Singleton
-public class MongoDBProvider implements Provider<DB> {
-    private final String dbUrl;
-    private final String dbName;
-    private final String username;
-    private final String password;
+public class MongoDBProvider { //implements Provider<DB> {
+//    private final String dbUrl;
+//    private final String dbName;
+//    private final String username;
+//    private final String password;
 
     private volatile DB db;
 
-    public MongoDBProvider(String dbUrl, String dbName, String username, String password) {
-        this.dbUrl = dbUrl;
-        this.dbName = dbName;
-        this.username = username;
-        this.password = password;
+    public MongoDBProvider(// String dbUrl, String dbName, String username, String password) {
+    ){
+//        this.dbUrl = dbUrl;
+//        this.dbName = dbName;
+//        this.username = username;
+//        this.password = password;
     }
 
-    @Override
-    public DB get() {
-        if (db == null) {
-            synchronized (this) {
-                if (db == null) {
-                    MongoCredential credential = createCredential(username, dbName, password.toCharArray());
-                    MongoClient mongoClient = new MongoClient(new ServerAddress(dbUrl), singletonList(credential));
-                    db = mongoClient.getDB(dbName);
-                }
-            }
-        }
-        return db;
-    }
+//    @Override
+//    public DB get() {
+//        if (db == null) {
+//            synchronized (this) {
+//                if (db == null) {
+//                    MongoCredential credential = createCredential(username, dbName, password.toCharArray());
+//                    MongoClient mongoClient = new MongoClient(new ServerAddress(dbUrl), singletonList(credential));
+//                    db = mongoClient.getDB(dbName);
+//                }
+//            }
+//        }
+//        return db;
+//    }
 }

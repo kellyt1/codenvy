@@ -14,19 +14,19 @@
  */
 package com.codenvy.api.tck;
 
+import com.codenvy.api.machine.server.recipe.RecipePermissionsImpl;
+import com.codenvy.api.machine.server.spi.jpa.JpaRecipePermissionsDao;
+import com.codenvy.api.machine.server.spi.tck.RecipePermissionsDaoTest;
 import com.codenvy.api.permission.server.AbstractPermissionsDomain;
 import com.codenvy.api.permission.server.SystemDomain;
 import com.codenvy.api.permission.server.jpa.JpaSystemPermissionsDao;
 import com.codenvy.api.permission.server.model.impl.SystemPermissionsImpl;
 import com.codenvy.api.permission.server.spi.PermissionsDao;
 import com.codenvy.api.permission.server.spi.tck.SystemPermissionsDaoTest;
-import com.codenvy.api.workspace.server.jpa.JpaRecipePermissionsDao;
-import com.codenvy.api.workspace.server.jpa.JpaStackPermissionsDao;
-import com.codenvy.api.workspace.server.jpa.JpaWorkerDao;
 import com.codenvy.api.workspace.server.model.impl.WorkerImpl;
-import com.codenvy.api.workspace.server.recipe.RecipePermissionsImpl;
 import com.codenvy.api.workspace.server.spi.WorkerDao;
-import com.codenvy.api.workspace.server.spi.tck.RecipePermissionsDaoTest;
+import com.codenvy.api.workspace.server.spi.jpa.JpaStackPermissionsDao;
+import com.codenvy.api.workspace.server.spi.jpa.JpaWorkerDao;
 import com.codenvy.api.workspace.server.spi.tck.StackPermissionsDaoTest;
 import com.codenvy.api.workspace.server.spi.tck.WorkerDaoTest;
 import com.codenvy.api.workspace.server.stack.StackPermissionsImpl;

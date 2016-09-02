@@ -27,11 +27,6 @@ import org.everrest.core.resource.GenericResourceMethod;
 
 import javax.ws.rs.Path;
 
-import static com.codenvy.api.workspace.server.stack.StackDomain.DELETE;
-import static com.codenvy.api.workspace.server.stack.StackDomain.DOMAIN_ID;
-import static com.codenvy.api.workspace.server.stack.StackDomain.READ;
-import static com.codenvy.api.workspace.server.stack.StackDomain.UPDATE;
-
 /**
  * Restricts access to methods of {@link StackService} by users' permissions
  *
@@ -55,7 +50,7 @@ public class StackPermissionsFilter extends CheMethodInvokerFilter {
             case "getStack":
             case "getIcon":
                 stackId = ((String)arguments[0]);
-                action = READ;
+                action = StackDomain.READ;
 
                 if (currentSubject.hasPermission(StackDomain.DOMAIN_ID, stackId, StackDomain.SEARCH)) {
                     //allow to read stack if user has 'search' permission
@@ -66,17 +61,17 @@ public class StackPermissionsFilter extends CheMethodInvokerFilter {
             case "updateStack":
             case "uploadIcon":
                 stackId = ((String)arguments[1]);
-                action = UPDATE;
+                action = StackDomain.UPDATE;
                 break;
 
             case "removeIcon":
                 stackId = ((String)arguments[0]);
-                action = UPDATE;
+                action = StackDomain.UPDATE;
                 break;
 
             case "removeStack":
                 stackId = ((String)arguments[0]);
-                action = DELETE;
+                action = StackDomain.DELETE;
                 break;
 
             case "createStack":
@@ -87,7 +82,7 @@ public class StackPermissionsFilter extends CheMethodInvokerFilter {
                 throw new ForbiddenException("The user does not have permission to perform this operation");
         }
 
-        if (!currentSubject.hasPermission(DOMAIN_ID, stackId, action)) {
+        if (!currentSubject.hasPermission(StackDomain.DOMAIN_ID, stackId, action)) {
             throw new ForbiddenException("The user does not have permission to " + action + " stack with id '" + stackId + "'");
         }
     }

@@ -153,7 +153,7 @@ public class PermissionsManagerTest {
 
         when(permissionsDao.getByInstance("test123")).thenReturn(Arrays.asList(firstPermissions, secondPermissions));
 
-        final List<AbstractPermissions> fetchedPermissions = permissionsManager.getByInstance("test", "test123");
+        final List<? extends AbstractPermissions> fetchedPermissions = permissionsManager.getByInstance("test", "test123");
 
         assertEquals(fetchedPermissions.size(), 2);
         assertTrue(fetchedPermissions.contains(firstPermissions));

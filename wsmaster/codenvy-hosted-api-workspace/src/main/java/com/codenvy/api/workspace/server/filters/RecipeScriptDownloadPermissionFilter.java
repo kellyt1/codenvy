@@ -14,6 +14,8 @@
  */
 package com.codenvy.api.workspace.server.filters;
 
+import com.codenvy.api.workspace.server.WorkspaceDomain;
+
 import org.eclipse.che.api.core.ApiException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.commons.env.EnvironmentContext;
@@ -23,9 +25,6 @@ import org.everrest.core.Filter;
 import org.everrest.core.resource.GenericResourceMethod;
 
 import javax.ws.rs.Path;
-
-import static com.codenvy.api.workspace.server.WorkspaceDomain.DOMAIN_ID;
-import static com.codenvy.api.workspace.server.WorkspaceDomain.USE;
 
 /**
  * Restricts access to methods of {@link org.eclipse.che.api.workspace.server.RecipeScriptDownloadService} by users' permissions
@@ -47,12 +46,12 @@ public class RecipeScriptDownloadPermissionFilter extends CheMethodInvokerFilter
             switch (methodName) {
                 case "getRecipeScript": {
                     workspaceId = ((String)arguments[0]);
-                    action = USE;
+                    action = WorkspaceDomain.USE;
                     break;
                 }
                 default:
                     throw new ForbiddenException("The user does not have permission to perform this operation");
             }
-            currentSubject.checkPermission(DOMAIN_ID, workspaceId, action);
+            currentSubject.checkPermission(WorkspaceDomain.DOMAIN_ID, workspaceId, action);
         }
 }

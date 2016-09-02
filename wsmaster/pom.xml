@@ -47,6 +47,7 @@
         <module>codenvy-hosted-sso-server-organization</module>
         <module>codenvy-hosted-workspace-activity</module>
         <module>codenvy-hosted-api-permission</module>
+        <module>codenvy-hosted-api-machine</module>
         <module>codenvy-hosted-api-workspace</module>
         <module>codenvy-integration-tck-jpa</module>
         <module>codenvy-hosted-authorization</module>

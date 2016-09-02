@@ -24,7 +24,6 @@ import org.eclipse.che.api.core.ServerException;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -38,8 +37,9 @@ import static java.util.Objects.requireNonNull;
  */
 @Singleton
 public class JpaSystemPermissionsDao extends AbstractJpaPermissionsDao<SystemPermissionsImpl> {
+
     @Inject
-    public JpaSystemPermissionsDao(@Named(SystemDomain.SYSTEM_DOMAIN_ACTIONS) Set<String> allowedActions) throws IOException {
+    public JpaSystemPermissionsDao(@Named(SystemDomain.SYSTEM_DOMAIN_ACTIONS) Set<String> allowedActions) {
         super(new SystemDomain(allowedActions));
     }
 
@@ -56,7 +56,14 @@ public class JpaSystemPermissionsDao extends AbstractJpaPermissionsDao<SystemPer
     @Override
     @Transactional
     public List<SystemPermissionsImpl> getByInstance(String instanceId) throws ServerException {
-        throw new ServerException("This operation is not supported for system permissions.");
+        // instanceId is ignored because system domain doesn't require it
+        try {
+            return managerProvider.get()
+                                  .createNamedQuery("SystemPermissions.getAll", SystemPermissionsImpl.class)
+                                  .getResultList();
+        } catch (RuntimeException e) {
+            throw new ServerException(e.getLocalizedMessage(), e);
+        }
     }
 
     @Override

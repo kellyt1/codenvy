@@ -26,7 +26,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.NotFoundException;
-import org.eclipse.che.api.core.Page;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.rest.Service;
 import org.eclipse.che.api.user.server.model.impl.UserImpl;
@@ -80,6 +79,30 @@ public class AuditService extends Service {
     public StreamingOutput getReport() throws ServerException {
         final File tempDir = Files.createTempDir();
         final File file = new File(tempDir, "report.txt");
+        printHeader(file);
+        int skipItems = 0;
+        while (true) {
+            List<UserImpl> users = adminUserDao.getAll(20, skipItems).getItems();
+            if (users.size() == 0) {
+                break;
+            } else {
+                skipItems += users.size();
+            }
+            for (UserImpl user : users) {
+                printUserInfo(user, file);
+            }
+        }
+        return output -> {
+            output.write(IOUtils.toByteArray(new FileInputStream(file)));
+            try {
+                FileUtils.deleteDirectory(tempDir);
+            } catch (IOException e) {
+                LOG.error(e.getMessage(), e);
+            }
+        };
+    }
+
+    private void printHeader(File file) throws ServerException {
         //TODO: rework to getTotalCount() method from JpaUserDao, when it will be merged to master.
         appendToFile("Number of all users: " + adminUserDao.getAll(1, 0).getTotalItemsCount() + "\n", file);
         final CodenvyLicense license;
@@ -92,54 +115,41 @@ public class AuditService extends Service {
             appendToFile("Failed to retrieve license!\n", file);
             LOG.error(e.getMessage(), e);
         }
-        int skipItems = 0;
-        while (true) {
-            Page<UserImpl> page = adminUserDao.getAll(20, skipItems);
-            List<UserImpl> users = page.getItems();
-            if (users.size() == 0) {
-                break;
-            } else {
-                skipItems += users.size();
-            }
-            for (UserImpl user : users) {
-                List<WorkspaceImpl> workspaces;
-                try {
-                    workspaces = workspaceManager.getWorkspaces(user.getId());
-                } catch (ServerException e) {
-                    appendToFile("   └ Failed to receive list of related workspaces!\n", file);
-                    LOG.error(e.getMessage(), e);
-                    continue;
-                }
-                int workspacesNumber = workspaces.size();
-                long ownWorkspacesNumber =
-                        workspaces.stream().filter(workspace -> workspace.getNamespace().equals(user.getName())).count();
-                appendToFile(user.getEmail() + " is owner of " +
-                             ownWorkspacesNumber + " workspace" + (ownWorkspacesNumber > 1 | ownWorkspacesNumber == 0 ? "s" : "") +
-                             " and has permissions in " + workspacesNumber + " workspace" +
-                             (workspacesNumber > 1 | workspacesNumber == 0 ? "s" : "") + "\n", file);
-                String userId = user.getId();
-                for (WorkspaceImpl workspace : workspaces) {
-                    appendToFile("   └ " + workspace.getConfig().getName() +
-                                 ", is owner: " + workspace.getNamespace().equals(user.getName()) + ", permissions: ", file);
-                    try {
-                        appendToFile(getWorkspacePermissions(workspace.getId(), userId).getActions().toString() + "\n", file);
-                    } catch (NotFoundException e) {
-                        appendToFile("Failed to retrieve workspace permissions! " + e.getMessage() + "\n", file);
-                    } catch (ConflictException e) {
-                        LOG.error(e.getMessage(), e);
-                        appendToFile("Failed to retrieve workspace Id!\n", file);
-                    }
-                }
-            }
+    }
+
+    private void printUserInfo(UserImpl user, File file) throws ServerException {
+        //Print error if failed to retrieve the list of his workspaces
+        List<WorkspaceImpl> workspaces;
+        try {
+            workspaces = workspaceManager.getWorkspaces(user.getId());
+        } catch (ServerException e) {
+            appendToFile("Failed to receive list of related workspaces for user " + user.getEmail() +"!\n", file);
+            LOG.error(e.getMessage(), e);
+            return;
         }
-        return output -> {
-            output.write(IOUtils.toByteArray(new FileInputStream(file)));
-            try {
-                FileUtils.deleteDirectory(tempDir);
-            } catch (IOException e) {
-                LOG.error(e.getMessage(), e);
-            }
-        };
+
+        int workspacesNumber = workspaces.size();
+        long ownWorkspacesNumber = workspaces.stream().filter(workspace -> workspace.getNamespace().equals(user.getName())).count();
+        appendToFile(user.getEmail() + " is owner of " +
+                     ownWorkspacesNumber + " workspace" + (ownWorkspacesNumber > 1 | ownWorkspacesNumber == 0 ? "s" : "") +
+                     " and has permissions in " + workspacesNumber + " workspace" +
+                     (workspacesNumber > 1 | workspacesNumber == 0 ? "s" : "") + "\n", file);
+        for (WorkspaceImpl workspace : workspaces) {
+            printUserWorkspaceInfo(workspace, user, file);
+        }
+    }
+
+    private void printUserWorkspaceInfo(WorkspaceImpl workspace, UserImpl user, File file) throws ServerException {
+        appendToFile("   └ " + workspace.getConfig().getName() +
+                     ", is owner: " + workspace.getNamespace().equals(user.getName()) + ", permissions: ", file);
+        try {
+            appendToFile(getWorkspacePermissions(workspace.getId(), user.getId()).getActions().toString() + "\n", file);
+        } catch (NotFoundException e) {
+            appendToFile("Failed to retrieve workspace permissions! " + e.getMessage() + "\n", file);
+        } catch (ConflictException e) {
+            LOG.error(e.getMessage(), e);
+            appendToFile("Failed to retrieve workspace Id!\n", file);
+        }
     }
 
     private void appendToFile(String row, File file) throws ServerException {

@@ -82,7 +82,7 @@ public class AuditServiceTest {
             "Number of all users: 2\n" +
             "Number of users licensed: 15\n" +
             "Date when license expires: 01 January 2016\n" +
-            "   └ Failed to receive list of related workspaces!\n" +
+            "Failed to receive list of related workspaces for user user1@email.com!\n" +
             "user2@email.com is owner of 1 workspace and has permissions in 1 workspace\n" +
             "   └ Workspace2Name, is owner: true, permissions: [read, use, run, configure, setPermissions, delete]\n";
     private static final String AUDIT_REPORT_WITHOUT_WORKSPACE_PERMISSIONS =

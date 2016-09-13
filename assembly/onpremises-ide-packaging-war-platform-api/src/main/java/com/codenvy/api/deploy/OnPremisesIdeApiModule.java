@@ -15,6 +15,8 @@
 package com.codenvy.api.deploy;
 
 import com.codenvy.api.AdminApiModule;
+import com.codenvy.api.audit.server.AuditService;
+import com.codenvy.api.audit.server.AuditServicePermissionsFilter;
 import com.codenvy.api.dao.authentication.PasswordEncryptor;
 import com.codenvy.api.dao.authentication.SSHAPasswordEncryptor;
 import com.codenvy.api.dao.ldap.AdminUserDaoImpl;
@@ -214,6 +216,9 @@ public class OnPremisesIdeApiModule extends AbstractModule {
         bind(com.codenvy.service.http.WorkspaceInfoCache.class);
 
         bind(com.codenvy.service.password.PasswordService.class);
+
+        bind(AuditService.class);
+        bind(AuditServicePermissionsFilter.class);
 
         //authentication
 

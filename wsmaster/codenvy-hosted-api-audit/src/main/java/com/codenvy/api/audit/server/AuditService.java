@@ -77,29 +77,17 @@ public class AuditService extends Service {
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public StreamingOutput getReport() throws ServerException {
-        final File tempDir = Files.createTempDir();
-        final File file = new File(tempDir, "report.txt");
+        File file = initializeFileInTempDirectory();
+
         printHeader(file);
-        int skipItems = 0;
-        while (true) {
-            List<UserImpl> users = adminUserDao.getAll(20, skipItems).getItems();
-            if (users.size() == 0) {
-                break;
-            } else {
-                skipItems += users.size();
-            }
-            for (UserImpl user : users) {
-                printUserInfo(user, file);
-            }
-        }
-        return output -> {
-            output.write(IOUtils.toByteArray(new FileInputStream(file)));
-            try {
-                FileUtils.deleteDirectory(tempDir);
-            } catch (IOException e) {
-                LOG.error(e.getMessage(), e);
-            }
-        };
+        printAllUsersInfo(file);
+
+        return initializeStreamAndCleanTempDirectory(file);
+    }
+
+    private File initializeFileInTempDirectory() {
+        final File tempDir = Files.createTempDir();
+        return new File(tempDir, "report.txt");
     }
 
     private void printHeader(File file) throws ServerException {
@@ -114,6 +102,21 @@ public class AuditService extends Service {
         } catch (LicenseException e) {
             appendToFile("Failed to retrieve license!\n", file);
             LOG.error(e.getMessage(), e);
+        }
+    }
+
+    private void printAllUsersInfo(File file) throws ServerException {
+        int skipItems = 0;
+        while (true) {
+            List<UserImpl> users = adminUserDao.getAll(20, skipItems).getItems();
+            if (users.size() == 0) {
+                break;
+            } else {
+                skipItems += users.size();
+            }
+            for (UserImpl user : users) {
+                printUserInfo(user, file);
+            }
         }
     }
 
@@ -176,5 +179,16 @@ public class AuditService extends Service {
             throw new NotFoundException("Permissions for user " + userId + " in workspace " + workspaceId +
                                         " was not found while generating audit report");
         }
+    }
+
+    private StreamingOutput initializeStreamAndCleanTempDirectory(File file) {
+        return output -> {
+            output.write(IOUtils.toByteArray(new FileInputStream(file)));
+            try {
+                FileUtils.deleteDirectory(new File(file.getParent()));
+            } catch (IOException e) {
+                LOG.error(e.getMessage(), e);
+            }
+        };
     }
 }

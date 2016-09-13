@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
 
 import java.lang.reflect.Method;
 
-import static com.codenvy.api.user.server.UserServicePermissionsFilter.MANAGE_USERS_ACTION;
+import static com.codenvy.api.permission.server.SystemDomain.MANAGE_CODENVY_ACTION;
 import static com.jayway.restassured.RestAssured.given;
 import static org.everrest.assured.JettyHttpServer.ADMIN_USER_NAME;
 import static org.everrest.assured.JettyHttpServer.ADMIN_USER_PASSWORD;
@@ -70,13 +70,13 @@ public class AuditServicePermissionsFilterTest {
     public void shouldCheckPermissionsByUsersFetching() throws Exception {
         final Response response = given().auth()
                                          .basic(ADMIN_USER_NAME, ADMIN_USER_PASSWORD)
-                                         .contentType("text/plain")
+                                         .contentType("application/octet-stream")
                                          .when()
                                          .get(SECURE_PATH + "/audit");
 
         assertEquals(response.getStatusCode(), 204);
-        verify(service).getReport();
-        verify(subject).checkPermission(SystemDomain.DOMAIN_ID, null, MANAGE_USERS_ACTION);
+        verify(service).downloadReport();
+        verify(subject).checkPermission(SystemDomain.DOMAIN_ID, null, MANAGE_CODENVY_ACTION);
     }
 
     @Test(expectedExceptions = ForbiddenException.class,
@@ -92,11 +92,11 @@ public class AuditServicePermissionsFilterTest {
     @Test
     public void shouldThrowForbiddenExceptionWhenUserDoesNotHavePermissionsForAudit() throws Exception {
         doThrow(new ForbiddenException("The user does not have permission to get audit report"))
-                .when(subject).checkPermission(SystemDomain.DOMAIN_ID, null, MANAGE_USERS_ACTION);
+                .when(subject).checkPermission(SystemDomain.DOMAIN_ID, null, MANAGE_CODENVY_ACTION);
 
         Response response = given().auth()
                                    .basic(ADMIN_USER_NAME, ADMIN_USER_PASSWORD)
-                                   .contentType("text/plain")
+                                   .contentType("application/octet-stream")
                                    .when()
                                    .get(SECURE_PATH + "/audit");
 

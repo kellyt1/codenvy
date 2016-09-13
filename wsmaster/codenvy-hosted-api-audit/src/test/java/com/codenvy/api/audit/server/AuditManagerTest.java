@@ -20,8 +20,8 @@ import com.codenvy.api.license.server.CodenvyLicenseManager;
 import com.codenvy.api.permission.server.PermissionManager;
 import com.codenvy.api.permission.server.PermissionsImpl;
 import com.codenvy.api.user.server.dao.AdminUserDao;
-import com.jayway.restassured.response.Response;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.Page;
@@ -34,19 +34,18 @@ import org.everrest.assured.EverrestJetty;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 
 import static com.jayway.restassured.RestAssured.given;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.everrest.assured.JettyHttpServer.ADMIN_USER_NAME;
-import static org.everrest.assured.JettyHttpServer.ADMIN_USER_PASSWORD;
-import static org.everrest.assured.JettyHttpServer.SECURE_PATH;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -59,7 +58,7 @@ import static org.testng.Assert.assertEquals;
  * @author Igor Vinokur
  */
 @Listeners(value = {EverrestJetty.class, MockitoTestNGListener.class})
-public class AuditServiceTest {
+public class AuditManagerTest {
 
     private static final String FULL_AUDIT_REPORT =
             "Number of all users: 2\n" +
@@ -104,6 +103,8 @@ public class AuditServiceTest {
             "user2@email.com is owner of 1 workspace and has permissions in 1 workspace\n" +
             "   └ Workspace2Name, is owner: true, permissions: Failed to retrieve workspace Id!\n";
 
+    private File report;
+
     @Mock
     private AdminUserDao          adminUserDao;
     @Mock
@@ -113,7 +114,7 @@ public class AuditServiceTest {
     @Mock
     private CodenvyLicenseManager licenseManager;
     @InjectMocks
-    private AuditService          service;
+    private AuditManager          auditManager;
 
     @BeforeMethod
     public void setUp() throws Exception {
@@ -168,19 +169,21 @@ public class AuditServiceTest {
         when(adminUserDao.getAll(1, 0)).thenReturn(page);
         when(adminUserDao.getAll(20, 0)).thenReturn(page);
         when(adminUserDao.getAll(20, 2)).thenReturn(emptyPage);
+
+        report = auditManager.initializeFileReportInTempDirectory();
+    }
+    @AfterMethod
+    public void cleanTempDirectory() throws Exception {
+        auditManager.deleteReport(report);
     }
 
     @Test
     public void shouldReturnFullAuditReport() throws Exception {
         //when
-        final Response response = given().auth()
-                                         .basic(ADMIN_USER_NAME, ADMIN_USER_PASSWORD)
-                                         .when()
-                                         .get(SECURE_PATH + "/audit");
+        auditManager.printAuditReportToFile(report);
 
         //then
-        assertEquals(response.getStatusCode(), 200);
-        assertEquals(response.print(), FULL_AUDIT_REPORT);
+        assertEquals(FileUtils.readFileToString(report), FULL_AUDIT_REPORT);
     }
 
     @Test
@@ -189,13 +192,10 @@ public class AuditServiceTest {
         when(licenseManager.load()).thenThrow(new LicenseException("Failed to retrieve license info"));
 
         //when
-        final Response response = given().auth()
-                                         .basic(ADMIN_USER_NAME, ADMIN_USER_PASSWORD)
-                                         .when()
-                                         .get(SECURE_PATH + "/audit");
+        auditManager.printAuditReportToFile(report);
 
         //then
-        assertEquals(response.print(), AUDIT_REPORT_WITHOUT_LICENSE);
+        assertEquals(FileUtils.readFileToString(report), AUDIT_REPORT_WITHOUT_LICENSE);
     }
 
     @Test
@@ -204,13 +204,10 @@ public class AuditServiceTest {
         when(workspaceManager.getWorkspaces(eq("User1Id"))).thenThrow(new ServerException("Failed to retrieve workspaces"));
 
         //when
-        final Response response = given().auth()
-                                         .basic(ADMIN_USER_NAME, ADMIN_USER_PASSWORD)
-                                         .when()
-                                         .get(SECURE_PATH + "/audit");
+        auditManager.printAuditReportToFile(report);
 
         //then
-        assertEquals(response.print(), AUDIT_REPORT_WITHOUT_USER_WORKSPACES);
+        assertEquals(FileUtils.readFileToString(report), AUDIT_REPORT_WITHOUT_USER_WORKSPACES);
     }
 
     @Test
@@ -220,13 +217,10 @@ public class AuditServiceTest {
                 .thenThrow(new NotFoundException("Permissions was not found"));
 
         //when
-        final Response response = given().auth()
-                                         .basic(ADMIN_USER_NAME, ADMIN_USER_PASSWORD)
-                                         .when()
-                                         .get(SECURE_PATH + "/audit");
+        auditManager.printAuditReportToFile(report);
 
         //then
-        assertEquals(response.print(), AUDIT_REPORT_WITHOUT_WORKSPACE_PERMISSIONS);
+        assertEquals(FileUtils.readFileToString(report), AUDIT_REPORT_WITHOUT_WORKSPACE_PERMISSIONS);
     }
 
     @Test
@@ -236,12 +230,9 @@ public class AuditServiceTest {
                 .thenThrow(new ConflictException("Failed to retrieve workspace Id"));
 
         //when
-        final Response response = given().auth()
-                                         .basic(ADMIN_USER_NAME, ADMIN_USER_PASSWORD)
-                                         .when()
-                                         .get(SECURE_PATH + "/audit");
+        auditManager.printAuditReportToFile(report);
 
         //then
-        assertEquals(response.print(), AUDIT_REPORT_WITHOUT_WORKSPACE_ID);
+        assertEquals(FileUtils.readFileToString(report), AUDIT_REPORT_WITHOUT_WORKSPACE_ID);
     }
 }

@@ -25,7 +25,7 @@ import org.everrest.core.resource.GenericResourceMethod;
 
 import javax.ws.rs.Path;
 
-import static com.codenvy.api.user.server.UserServicePermissionsFilter.MANAGE_USERS_ACTION;
+import static com.codenvy.api.permission.server.SystemDomain.MANAGE_CODENVY_ACTION;
 
 /**
  * Filter that covers calls to {@link AuditService} with authorization
@@ -38,8 +38,8 @@ public class AuditServicePermissionsFilter extends CheMethodInvokerFilter {
     @Override
     protected void filter(GenericResourceMethod GenericResourceMethod, Object[] arguments) throws ApiException {
         String methodName = GenericResourceMethod.getMethod().getName();
-        if ("getReport".equals(methodName)) {
-            EnvironmentContext.getCurrent().getSubject().checkPermission(SystemDomain.DOMAIN_ID, null, MANAGE_USERS_ACTION);
+        if ("downloadReport".equals(methodName)) {
+            EnvironmentContext.getCurrent().getSubject().checkPermission(SystemDomain.DOMAIN_ID, null, MANAGE_CODENVY_ACTION);
         } else {
             //unknown method
             throw new ForbiddenException("User is not authorized to perform this operation");

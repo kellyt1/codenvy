@@ -35,11 +35,15 @@ import com.codenvy.im.utils.HttpTransport;
 import com.codenvy.im.utils.Version;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
+import org.eclipse.che.api.user.shared.dto.UserDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.commons.json.JsonParseException;
 
 import javax.inject.Named;
 import javax.validation.constraints.NotNull;
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -60,6 +64,8 @@ public class IMArtifactLabeledFacade extends InstallationManagerFacade {
                                    HttpTransport transport,
                                    SaasAuthServiceProxy saasAuthServiceProxy,
                                    SaasRepositoryServiceProxy saasRepositoryServiceProxy,
+                                   HttpJsonRequestFactory httpJsonRequestFactory,
+                                   HttpTransport httpTransport,
                                    LdapManager ldapManager,
                                    NodeManager nodeManager,
                                    BackupManager backupManager,
@@ -70,6 +76,8 @@ public class IMArtifactLabeledFacade extends InstallationManagerFacade {
               transport,
               saasAuthServiceProxy,
               saasRepositoryServiceProxy,
+              httpJsonRequestFactory,
+              httpTransport,
               ldapManager,
               nodeManager,
               backupManager,
@@ -78,6 +86,10 @@ public class IMArtifactLabeledFacade extends InstallationManagerFacade {
               downloadManager);
     }
 
+    @Override
+    public void getAuditReport() throws Exception {
+        super.getAuditReport();
+    }
 
     /** {@inheritDoc} */
     @Override

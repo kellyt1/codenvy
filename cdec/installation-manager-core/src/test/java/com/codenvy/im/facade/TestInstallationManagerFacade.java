@@ -41,6 +41,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.eclipse.che.api.auth.shared.dto.Credentials;
 import org.eclipse.che.api.auth.shared.dto.Token;
+import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.dto.server.JsonStringMapImpl;
 import org.mockito.Mock;
@@ -102,6 +103,12 @@ public class TestInstallationManagerFacade extends BaseTest {
     @Mock
     private Artifact                   mockArtifact;
 
+    @Mock
+    private HttpJsonRequestFactory httpJsonRequestFactory;
+
+    @Mock
+    private HttpTransport httpTransport;
+
     @BeforeMethod
     public void setUp() throws Exception {
         initMocks(this);
@@ -110,6 +117,8 @@ public class TestInstallationManagerFacade extends BaseTest {
                                                                       transport,
                                                                       saasAuthServiceProxy,
                                                                       saasRepositoryServiceProxy,
+                                                                      httpJsonRequestFactory,
+                                                                      httpTransport,
                                                                       ldapManager,
                                                                       nodeManager,
                                                                       backupManager,

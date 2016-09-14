@@ -29,6 +29,8 @@ import com.codenvy.im.saas.SaasAuthServiceProxy;
 import com.codenvy.im.saas.SaasRepositoryServiceProxy;
 import com.codenvy.im.utils.HttpTransport;
 import com.codenvy.im.utils.Version;
+
+import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
 import org.mockito.Mock;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -61,19 +63,23 @@ public class TestDownloadInstallationManagerFacade {
     @Mock
     private SaasRepositoryServiceProxy saasRepositoryServiceProxy;
     @Mock
-    private HttpTransport              transport;
+    private HttpTransport          transport;
     @Mock
-    private LdapManager                ldapManager;
+    private LdapManager            ldapManager;
     @Mock
-    private NodeManager                nodeManager;
+    private NodeManager            nodeManager;
     @Mock
-    private BackupManager              backupManager;
+    private BackupManager          backupManager;
     @Mock
-    private StorageManager             storageManager;
+    private StorageManager         storageManager;
     @Mock
-    private InstallManager             installManager;
+    private InstallManager         installManager;
     @Mock
-    private DownloadManager            downloadManager;
+    private DownloadManager        downloadManager;
+    @Mock
+    private HttpJsonRequestFactory httpJsonRequestFactory;
+    @Mock
+    private HttpTransport httpTransport;
 
     private Artifact installManagerArtifact;
     private Artifact cdecArtifact;
@@ -87,6 +93,8 @@ public class TestDownloadInstallationManagerFacade {
                                                                    transport,
                                                                    saasAuthServiceProxy,
                                                                    saasRepositoryServiceProxy,
+                                                                   httpJsonRequestFactory,
+                                                                   httpTransport,
                                                                    ldapManager,
                                                                    nodeManager,
                                                                    backupManager,

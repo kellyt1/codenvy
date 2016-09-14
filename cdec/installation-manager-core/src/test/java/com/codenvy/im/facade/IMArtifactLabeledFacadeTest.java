@@ -34,6 +34,8 @@ import com.codenvy.im.saas.SaasRepositoryServiceProxy;
 import com.codenvy.im.utils.HttpTransport;
 import com.codenvy.im.utils.Version;
 import com.google.common.collect.ImmutableMap;
+
+import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -75,6 +77,11 @@ public class IMArtifactLabeledFacadeTest extends BaseTest {
     private DownloadManager            downloadManager;
     @Mock
     private ConfigManager              configManager;
+    @Mock
+    private HttpTransport httpTransport;
+
+    @Mock
+    private HttpJsonRequestFactory httpJsonRequestFactory;
 
     private IMArtifactLabeledFacade         facade;
     private ImmutableMap<Artifact, Version> versions;
@@ -94,6 +101,8 @@ public class IMArtifactLabeledFacadeTest extends BaseTest {
                                                  transport,
                                                  saasAuthServiceProxy,
                                                  saasRepositoryServiceProxy,
+                                                 httpJsonRequestFactory,
+                                                 httpTransport,
                                                  ldapManager,
                                                  nodeManager,
                                                  backupManager,

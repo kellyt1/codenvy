@@ -34,6 +34,8 @@ import com.codenvy.im.utils.HttpTransport;
 import com.codenvy.im.utils.Version;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.commons.json.JsonParseException;
 
@@ -59,6 +61,8 @@ public class IMCliFilteredFacade extends IMArtifactLabeledFacade {
                                HttpTransport transport,
                                SaasAuthServiceProxy saasAuthServiceProxy,
                                SaasRepositoryServiceProxy saasRepositoryServiceProxy,
+                               HttpJsonRequestFactory httpJsonRequestFactory,
+                               HttpTransport httpTransport,
                                LdapManager ldapManager,
                                NodeManager nodeManager,
                                BackupManager backupManager,
@@ -69,6 +73,8 @@ public class IMCliFilteredFacade extends IMArtifactLabeledFacade {
               transport,
               saasAuthServiceProxy,
               saasRepositoryServiceProxy,
+              httpJsonRequestFactory,
+              httpTransport,
               ldapManager,
               nodeManager,
               backupManager,

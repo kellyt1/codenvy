@@ -14,7 +14,6 @@
  */
 package com.codenvy.api.audit.server;
 
-import org.apache.commons.compress.utils.IOUtils;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.rest.Service;
 
@@ -23,9 +22,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 
 /**
  * Defines Audit report REST API.
@@ -44,14 +45,22 @@ public class AuditService extends Service {
 
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public StreamingOutput downloadReport() throws ServerException {
+    public Response downloadReport() throws ServerException {
         final File report = auditManager.initializeFileReportInTempDirectory();
 
         auditManager.printAuditReportToFile(report);
 
-        return output -> {
-            output.write(IOUtils.toByteArray(new FileInputStream(report)));
-            auditManager.deleteReport(report);
+
+        StreamingOutput stream = output -> {
+            try (InputStream input = new FileInputStream(report)) {
+                org.apache.commons.io.IOUtils.copyLarge(input, output);
+                auditManager.deleteReport(report);
+            }
         };
+
+        return Response.ok(stream)
+                       .header("Content-Length", String.valueOf(report.length()))
+                       .header("Content-Disposition", "attachment; filename=" + report.getName())
+                       .build();
     }
 }

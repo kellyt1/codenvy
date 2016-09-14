@@ -64,6 +64,7 @@ public class AuditManager {
                         PermissionManager permissionManager,
                         CodenvyLicenseManager licenseManager) {
 
+        //TODO: use getAll() method from JpaUserDao, when it will be merged to master.
         this.adminUserDao = adminUserDao;
         this.workspaceManager = workspaceManager;
         this.permissionManager = permissionManager;

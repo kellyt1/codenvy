@@ -41,21 +41,34 @@ import com.codenvy.im.response.UpdateArtifactInfo;
 import com.codenvy.im.saas.SaasAuthServiceProxy;
 import com.codenvy.im.saas.SaasRepositoryServiceProxy;
 import com.codenvy.im.utils.HttpTransport;
+import com.codenvy.im.utils.InjectorBootstrap;
 import com.codenvy.im.utils.Version;
 import com.google.common.collect.FluentIterable;
 import com.google.inject.Inject;
+import com.google.inject.Key;
 import com.google.inject.Singleton;
+import com.google.inject.name.Names;
+
+import org.apache.commons.io.IOUtils;
 import org.eclipse.che.api.auth.AuthenticationException;
 import org.eclipse.che.api.auth.shared.dto.Credentials;
 import org.eclipse.che.api.auth.shared.dto.Token;
+import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
+import org.eclipse.che.api.core.rest.HttpJsonResponse;
+import org.eclipse.che.api.user.shared.dto.UserDto;
+import org.eclipse.che.api.workspace.shared.dto.WorkspaceDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.commons.json.JsonParseException;
 
 import javax.inject.Named;
 import javax.validation.constraints.NotNull;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -81,16 +94,21 @@ public class InstallationManagerFacade {
     protected final NodeManager                nodeManager;
     protected final BackupManager              backupManager;
     protected final StorageManager             storageManager;
-    protected final InstallManager             installManager;
+    private final   HttpJsonRequestFactory     httpJsonRequestFactory;
+    private final   HttpTransport              httpTransport;
+    protected final InstallManager installManager;
     protected final DownloadManager            downloadManager;
 
     private final String saasServerEndpoint;
+    String token = "T4XXbGWOWOTPLCS0iiLuXCi9mj0jKqfDy4WeTW814PPSG9Tfef85Ljm05KDSiK1nrD9C5vbjLjOmuPPvWKe1GDjnXXOTL5K0HCvPLqL40PS9jjPXC1Xb4bmGPOz8Cbf4SeDCm5nqy01STTG4fXbC440LXf0jXquCrXaK5LPm0DKb0m9v1LaqT1W0rLfaiHunmTyrzGX5CeCrqPLnK0n1KOL99TrKa4yfm4Cz4nTSOCPOiGuPPOGCfW8T1yTX1GG";
 
     @Inject
     public InstallationManagerFacade(@Named("saas.api.endpoint") String saasServerEndpoint,
                                      HttpTransport transport,
                                      SaasAuthServiceProxy saasAuthServiceProxy,
                                      SaasRepositoryServiceProxy saasRepositoryServiceProxy,
+                                     HttpJsonRequestFactory httpJsonRequestFactory,
+                                     HttpTransport httpTransport,
                                      LdapManager ldapManager,
                                      NodeManager nodeManager,
                                      BackupManager backupManager,
@@ -98,6 +116,8 @@ public class InstallationManagerFacade {
                                      InstallManager installManager,
                                      DownloadManager downloadManager) {
         this.saasRepositoryServiceProxy = saasRepositoryServiceProxy;
+        this.httpJsonRequestFactory = httpJsonRequestFactory;
+        this.httpTransport = httpTransport;
         this.installManager = installManager;
         this.downloadManager = downloadManager;
         this.transport = transport;
@@ -107,6 +127,24 @@ public class InstallationManagerFacade {
         this.backupManager = backupManager;
         this.storageManager = storageManager;
         this.saasServerEndpoint = saasServerEndpoint;
+    }
+
+    public void getAuditReport() throws Exception {
+
+        String auditDir = InjectorBootstrap.INJECTOR.getInstance(Key.get(String.class, Names.named("installation-manager.audit_dir")));
+
+        java.nio.file.Path destDir = Paths.get(auditDir);
+
+        httpTransport.download("http://codenvy.onprem/api/audit?token=" + token, destDir);
+//        HttpJsonResponse request = httpJsonRequestFactory.fromUrl("http://codenvy.onprem/api/audit")
+//                                                         .setAuthorizationHeader(token)
+//                                                         .useGetMethod()
+//                                                         .request();
+//        File file = File.createTempFile("report", "txt");
+//        FileOutputStream fileOutputStream = new FileOutputStream(file);
+//        InputStream inputStream = request.as(InputStream.class, InputStream.class.getGenericSuperclass());
+//        IOUtils.copy(inputStream, fileOutputStream);
+//        fileOutputStream.close();
     }
 
     public String getSaasServerEndpoint() {

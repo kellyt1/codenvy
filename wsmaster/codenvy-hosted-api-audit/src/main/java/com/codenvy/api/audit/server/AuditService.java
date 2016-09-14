@@ -14,6 +14,10 @@
  */
 package com.codenvy.api.audit.server;
 
+import com.google.common.io.Files;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.rest.Service;
 
@@ -27,6 +31,8 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Defines Audit report REST API.
@@ -46,15 +52,16 @@ public class AuditService extends Service {
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response downloadReport() throws ServerException {
-        final File report = auditManager.initializeFileReportInTempDirectory();
+        String dateTime = new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss").format(new Date());
+        final File report = new File(Files.createTempDir(), "report" + dateTime + ".txt");
 
         auditManager.printAuditReportToFile(report);
 
-
         StreamingOutput stream = output -> {
             try (InputStream input = new FileInputStream(report)) {
-                org.apache.commons.io.IOUtils.copyLarge(input, output);
-                auditManager.deleteReport(report);
+                IOUtils.copyLarge(input, output);
+            } finally {
+                FileUtils.deleteDirectory(new File(report.getParent()));
             }
         };
 

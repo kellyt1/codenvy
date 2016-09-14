@@ -72,16 +72,6 @@ public class AuditManager {
     }
 
     /**
-     * Creates a file for report in temporary directory inside systems temp directory.
-     *
-     * @return created file for report
-     */
-    public File initializeFileReportInTempDirectory() {
-        final File tempDir = Files.createTempDir();
-        return new File(tempDir, "report.txt");
-    }
-
-    /**
      * Prints audit report to given file.
      *
      * @param file file for report

@@ -13,6 +13,7 @@
  * from Codenvy S.A..
  */
 package com.codenvy.im.cli.command;
+import com.codenvy.im.cli.preferences.PreferenceNotFoundException;
 import com.google.common.io.Files;
 
 import org.apache.karaf.shell.commands.Command;
@@ -31,7 +32,12 @@ public class AuditCommand extends AbstractIMCommand {
 
     @Override
     protected void doExecuteCommand() throws Exception {
-        getFacade().getAuditReport(getCodenvyOnpremPreferences().getAuthToken());
+        try {
+            getFacade().getAuditReport(getCodenvyOnpremPreferences().getAuthToken());
+        } catch (PreferenceNotFoundException e) {
+            getConsole().printError("Please login as admin.", false);
+            return;
+        }
         List<String> lines = Files.readLines(new File("/home/vagrant/codenvy/audit/report.txt"), Charset.defaultCharset());
         lines.forEach(line -> getConsole().print(line + "\n"));
     }

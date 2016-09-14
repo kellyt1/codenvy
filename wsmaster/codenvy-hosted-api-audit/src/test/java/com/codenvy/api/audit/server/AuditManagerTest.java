@@ -20,6 +20,7 @@ import com.codenvy.api.license.server.CodenvyLicenseManager;
 import com.codenvy.api.permission.server.PermissionManager;
 import com.codenvy.api.permission.server.PermissionsImpl;
 import com.codenvy.api.user.server.dao.AdminUserDao;
+import com.google.common.io.Files;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.che.api.core.ConflictException;
@@ -170,7 +171,7 @@ public class AuditManagerTest {
         when(adminUserDao.getAll(20, 0)).thenReturn(page);
         when(adminUserDao.getAll(20, 2)).thenReturn(emptyPage);
 
-        report = auditManager.initializeFileReportInTempDirectory();
+        report = new File(Files.createTempDir(), "report.txt");
     }
     @AfterMethod
     public void cleanTempDirectory() throws Exception {

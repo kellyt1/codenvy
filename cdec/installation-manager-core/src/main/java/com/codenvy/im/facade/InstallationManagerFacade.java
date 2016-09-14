@@ -96,10 +96,8 @@ public class InstallationManagerFacade {
     protected final StorageManager             storageManager;
     private final   HttpJsonRequestFactory     httpJsonRequestFactory;
     private final   HttpTransport              httpTransport;
-    protected final InstallManager installManager;
+    protected final InstallManager             installManager;
     protected final DownloadManager            downloadManager;
-
-    String token = "T4XXbGWOWOTPLCS0iiLuXCi9mj0jKqfDy4WeTW814PPSG9Tfef85Ljm05KDSiK1nrD9C5vbjLjOmuPPvWKe1GDjnXXOTL5K0HCvPLqL40PS9jjPXC1Xb4bmGPOz8Cbf4SeDCm5nqy01STTG4fXbC440LXf0jXquCrXaK5LPm0DKb0m9v1LaqT1W0rLfaiHunmTyrzGX5CeCrqPLnK0n1KOL99TrKa4yfm4Cz4nTSOCPOiGuPPOGCfW8T1yTX1GG";
 
     @Inject
     public InstallationManagerFacade(HttpTransport transport,
@@ -133,15 +131,6 @@ public class InstallationManagerFacade {
         java.nio.file.Path destDir = Paths.get(auditDir);
 
         httpTransport.download("http://codenvy.onprem/api/audit?token=" + authToken, destDir);
-//        HttpJsonResponse request = httpJsonRequestFactory.fromUrl("http://codenvy.onprem/api/audit")
-//                                                         .setAuthorizationHeader(token)
-//                                                         .useGetMethod()
-//                                                         .request();
-//        File file = File.createTempFile("report", "txt");
-//        FileOutputStream fileOutputStream = new FileOutputStream(file);
-//        InputStream inputStream = request.as(InputStream.class, InputStream.class.getGenericSuperclass());
-//        IOUtils.copy(inputStream, fileOutputStream);
-//        fileOutputStream.close();
     }
 
     /**

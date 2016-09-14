@@ -99,12 +99,10 @@ public class InstallationManagerFacade {
     protected final InstallManager installManager;
     protected final DownloadManager            downloadManager;
 
-    private final String saasServerEndpoint;
     String token = "T4XXbGWOWOTPLCS0iiLuXCi9mj0jKqfDy4WeTW814PPSG9Tfef85Ljm05KDSiK1nrD9C5vbjLjOmuPPvWKe1GDjnXXOTL5K0HCvPLqL40PS9jjPXC1Xb4bmGPOz8Cbf4SeDCm5nqy01STTG4fXbC440LXf0jXquCrXaK5LPm0DKb0m9v1LaqT1W0rLfaiHunmTyrzGX5CeCrqPLnK0n1KOL99TrKa4yfm4Cz4nTSOCPOiGuPPOGCfW8T1yTX1GG";
 
     @Inject
-    public InstallationManagerFacade(@Named("saas.api.endpoint") String saasServerEndpoint,
-                                     HttpTransport transport,
+    public InstallationManagerFacade(HttpTransport transport,
                                      SaasAuthServiceProxy saasAuthServiceProxy,
                                      SaasRepositoryServiceProxy saasRepositoryServiceProxy,
                                      HttpJsonRequestFactory httpJsonRequestFactory,
@@ -126,16 +124,15 @@ public class InstallationManagerFacade {
         this.nodeManager = nodeManager;
         this.backupManager = backupManager;
         this.storageManager = storageManager;
-        this.saasServerEndpoint = saasServerEndpoint;
     }
 
-    public void getAuditReport() throws Exception {
+    public void getAuditReport(String authToken) throws Exception {
 
         String auditDir = InjectorBootstrap.INJECTOR.getInstance(Key.get(String.class, Names.named("installation-manager.audit_dir")));
 
         java.nio.file.Path destDir = Paths.get(auditDir);
 
-        httpTransport.download("http://codenvy.onprem/api/audit?token=" + token, destDir);
+        httpTransport.download("http://codenvy.onprem/api/audit?token=" + authToken, destDir);
 //        HttpJsonResponse request = httpJsonRequestFactory.fromUrl("http://codenvy.onprem/api/audit")
 //                                                         .setAuthorizationHeader(token)
 //                                                         .useGetMethod()
@@ -145,10 +142,6 @@ public class InstallationManagerFacade {
 //        InputStream inputStream = request.as(InputStream.class, InputStream.class.getGenericSuperclass());
 //        IOUtils.copy(inputStream, fileOutputStream);
 //        fileOutputStream.close();
-    }
-
-    public String getSaasServerEndpoint() {
-        return saasServerEndpoint;
     }
 
     /**
@@ -603,6 +596,13 @@ public class InstallationManagerFacade {
      */
     public void reinstall(Artifact artifact) throws IOException {
         installManager.performReinstall(artifact);
+    }
+
+    /**
+     * @see com.codenvy.im.saas.SaasRepositoryServiceProxy#logAnalyticsEvent(com.codenvy.im.event.Event, null)
+     */
+    public void logSaasAnalyticsEvent(Event event) throws IOException {
+        logSaasAnalyticsEvent(event, null);
     }
 
     /**

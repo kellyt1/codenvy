@@ -31,8 +31,8 @@ public class AuditCommand extends AbstractIMCommand {
 
     @Override
     protected void doExecuteCommand() throws Exception {
-        facade.getAuditReport();
+        getFacade().getAuditReport(getCodenvyOnpremPreferences().getAuthToken());
         List<String> lines = Files.readLines(new File("/home/vagrant/codenvy/audit/report.txt"), Charset.defaultCharset());
-        lines.forEach(line -> console.print(line + "\n"));
+        lines.forEach(line -> getConsole().print(line + "\n"));
     }
 }

@@ -72,8 +72,8 @@ public class IMArtifactLabeledFacade extends InstallationManagerFacade {
                                    StorageManager storageManager,
                                    InstallManager installManager,
                                    DownloadManager downloadManager) {
-        super(saasServerEndpoint,
-              transport,
+        super(
+            transport,
               saasAuthServiceProxy,
               saasRepositoryServiceProxy,
               httpJsonRequestFactory,
@@ -87,8 +87,8 @@ public class IMArtifactLabeledFacade extends InstallationManagerFacade {
     }
 
     @Override
-    public void getAuditReport() throws Exception {
-        super.getAuditReport();
+    public void getAuditReport(String authToken) throws Exception {
+        super.getAuditReport(authToken);
     }
 
     /** {@inheritDoc} */

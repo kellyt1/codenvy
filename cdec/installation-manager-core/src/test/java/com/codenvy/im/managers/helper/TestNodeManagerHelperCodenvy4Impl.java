@@ -15,7 +15,10 @@
 package com.codenvy.im.managers.helper;
 
 import com.codenvy.im.BaseTest;
+import com.codenvy.im.agent.AgentException;
+import com.codenvy.im.agent.ConnectionException;
 import com.codenvy.im.commands.Command;
+import com.codenvy.im.commands.CommandException;
 import com.codenvy.im.commands.CommandLibrary;
 import com.codenvy.im.commands.MacroCommand;
 import com.codenvy.im.managers.Codenvy4xLicenseManager;
@@ -27,7 +30,6 @@ import com.codenvy.im.managers.NodeException;
 import com.codenvy.im.utils.HttpTransport;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
 import org.eclipse.che.api.core.ApiException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -45,10 +47,11 @@ import java.util.Map;
 import static java.lang.String.format;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -351,6 +354,74 @@ public class TestNodeManagerHelperCodenvy4Impl extends BaseTest {
 
         Map result = spyHelperCodenvy4.getNodes();
         assertEquals(result, new HashMap(testNodes));
+    }
+
+    @Test
+    public void testValidateSingleServerNode() throws Exception {
+        prepareSingleNodeEnv(mockConfigManager);
+
+        doReturn(mockCommand).when(spyHelperCodenvy4).getValidateSudoRightsCommand(TEST_NODE);
+        doReturn(mockCommand).when(spyHelperCodenvy4).getValidatePuppetMasterAccessibilityCommand(HOSTNAME, TEST_NODE);
+        spyHelperCodenvy4.validate(TEST_NODE, HOSTNAME);
+
+        verify(mockCommand, times(2)).execute();
+    }
+
+    @Test
+    public void testValidateMultiServerNode() throws Exception {
+        prepareMultiNodeEnv(mockConfigManager);
+
+        doReturn(mockCommand).when(spyHelperCodenvy4).getValidateSudoRightsCommand(TEST_NODE);
+
+        doReturn(HOSTNAME).when(mockConfigManager).fetchMasterHostName();
+        doReturn(mockCommand).when(spyHelperCodenvy4).getValidatePuppetMasterAccessibilityCommand(HOSTNAME, TEST_NODE);
+
+        spyHelperCodenvy4.validate(TEST_NODE, HOSTNAME);
+
+        verify(mockCommand, times(2)).execute();
+    }
+
+    @Test(expectedExceptions = NodeException.class, expectedExceptionsMessageRegExp = "agent error")
+    public void testValidateNodeAgentException() throws Exception {
+        prepareMultiNodeEnv(mockConfigManager);
+
+        doReturn(HOSTNAME).when(mockConfigManager).fetchMasterHostName();
+
+        doReturn(mockCommand).when(spyHelperCodenvy4).getValidateSudoRightsCommand(TEST_NODE);
+
+        doThrow(new AgentException("agent error")).when(spyHelperCodenvy4).getValidatePuppetMasterAccessibilityCommand(HOSTNAME, TEST_NODE);
+        spyHelperCodenvy4.validate(TEST_NODE, HOSTNAME);
+    }
+
+    @Test(expectedExceptions = NodeException.class, expectedExceptionsMessageRegExp = "It seems user doesn't have sudo rights without password on node 'localhost'.")
+    public void testValidateSudoRightsWithoutPasswordCommandException() throws Exception {
+        prepareSingleNodeEnv(mockConfigManager);
+
+        doReturn(mockCommand).when(spyHelperCodenvy4).getValidateSudoRightsCommand(TEST_NODE);
+        doThrow(new CommandException("command error", new AgentException("agent error", null))).when(mockCommand).execute();
+
+        spyHelperCodenvy4.validate(TEST_NODE, HOSTNAME);
+    }
+
+    @Test(expectedExceptions = NodeException.class, expectedExceptionsMessageRegExp = "It seems Puppet Master 'hostname:8140' is not accessible from the node 'localhost'.")
+    public void testValidatePuppetMasterAccessibilityCommandException() throws Exception {
+        prepareSingleNodeEnv(mockConfigManager);
+
+        doReturn(mock(Command.class)).when(spyHelperCodenvy4).getValidateSudoRightsCommand(TEST_NODE);
+        doReturn(mockCommand).when(spyHelperCodenvy4).getValidatePuppetMasterAccessibilityCommand(HOSTNAME, TEST_NODE);
+        doThrow(new CommandException("command error", new AgentException("agent error", null))).when(mockCommand).execute();
+
+        spyHelperCodenvy4.validate(TEST_NODE, HOSTNAME);
+    }
+
+    @Test(expectedExceptions = NodeException.class, expectedExceptionsMessageRegExp = "command error")
+    public void testValidateNodeConnectionException() throws Exception {
+        prepareSingleNodeEnv(mockConfigManager);
+
+        doReturn(mockCommand).when(spyHelperCodenvy4).getValidateSudoRightsCommand(TEST_NODE);
+        doThrow(new CommandException("command error", new ConnectionException("Connection error", null))).when(mockCommand).execute();
+
+        spyHelperCodenvy4.validate(TEST_NODE, HOSTNAME);
     }
 
     @Test

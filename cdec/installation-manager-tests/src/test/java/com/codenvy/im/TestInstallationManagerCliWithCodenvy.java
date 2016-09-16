@@ -85,13 +85,13 @@ public class TestInstallationManagerCliWithCodenvy extends BaseIntegrationTest {
         doTest("codenvy/node/test-add-remove-codenvy-nodes.sh", RHEL);
     }
 
-    @Test
-    public void testBackupRestoreSingleNodeInRhelOs() throws Exception {
-        doTest("codenvy/backup/test-backup-restore-single-node.sh", RHEL);
-    }
-
-    @Test
-    public void testInstallSingleNodeBehindTheProxyInRhelOs() throws Exception {
-        doTest("codenvy/install/test-install-single-node-behind-the-proxy.sh", RHEL);
-    }
+//    @Test
+//    public void testBackupRestoreSingleNodeInRhelOs() throws Exception {
+//        doTest("codenvy/backup/test-backup-restore-single-node.sh", RHEL);
+//    }
+//
+//    @Test
+//    public void testInstallSingleNodeBehindTheProxyInRhelOs() throws Exception {
+//        doTest("codenvy/install/test-install-single-node-behind-the-proxy.sh", RHEL);
+//    }
 }

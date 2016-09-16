@@ -51,7 +51,7 @@ executeSshCommand "sudo systemctl stop iptables"  # open port 23750
 doGet "http://${HOST_URL}:23750/info"
 validateExpectedString ".*Nodes\",\"2\".*\[\" ${HOST_URL}\",\"${HOST_URL}:2375\"\].*\[\" node1.${HOST_URL}\",\"node1.${HOST_URL}:2375\"\].*"
 
-# throw error that node has been already used
+## throw error that node has been already used
 executeIMCommand "--valid-exit-code=1" "add-node" "node1.${HOST_URL}"
 validateExpectedString ".*Node..node1.${HOST_URL}..has.been.already.used.*"
 
@@ -64,41 +64,45 @@ executeIMCommand "--valid-exit-code=1" "add-node" "node3.${HOST_URL}"
 validateExpectedString ".*Can.t.connect.to.host..vagrant@node3.${HOST_URL}:22.*"
 
 ############# Start of change Codenvy hostname workflow
-# change '${HOST_URL}' hostname on '${NEW_HOST_URL}' on puppet master
-executeSshCommand "sudo sed -i 's/ ${HOST_URL}/ ${NEW_HOST_URL}/' /etc/hosts" "node1.${HOST_URL}"
-executeSshCommand "sudo sed -i 's/ ${HOST_URL}/ ${NEW_HOST_URL}/' /etc/hosts" "node2.${NEW_HOST_URL}"
+# throw error on changing Codenvy host_url from '${HOST_URL}' to '${NEW_HOST_URL}'
+executeIMCommand "--valid-exit-code=1" "config" "--hostname" "${NEW_HOST_URL}"
+validateExpectedString ".*There.is.a.problem.with.one.of.the.nodes.with.new.hostname.*node1.${NEW_HOST_URL}.*"
+
+# change '${HOST_URL}' hostname on '${NEW_HOST_URL}'
+executeSshCommand "sudo sed -i 's/${HOST_URL}/${NEW_HOST_URL}/g' /etc/hosts" "node1.${HOST_URL}"
+executeSshCommand "sudo sed -i 's/${HOST_URL}/${NEW_HOST_URL}/g' /etc/hosts"
+executeSshCommand "sudo sed -i 's/${HOST_URL}/${NEW_HOST_URL}/g' /etc/hosts" "node2.${HOST_URL}"
 
 # change Codenvy host_url from '${HOST_URL}' to '${NEW_HOST_URL}'
 executeIMCommand "config" "--hostname" "${NEW_HOST_URL}"
 
-# change 'node1.${HOST_URL}' hostname on 'node1.test.${HOST_URL}' on node1
-executeSshCommand "sudo sed -i 's/192.168.56.15 node1.${HOST_URL}//' /etc/hosts" "node1.${HOST_URL}"
-executeSshCommand "sudo sed -i 's/ node1.${HOST_URL}/ node1.${NEW_HOST_URL}/' /etc/hosts" "node1.${HOST_URL}"
-executeSshCommand "sudo sed -i 's/ node1.${HOST_URL}/ node1.${NEW_HOST_URL}/' /etc/hosts"
-executeSshCommand "sudo sed -i 's/ node1.${HOST_URL}/ node1.${NEW_HOST_URL}/' /etc/hosts" "node2.${NEW_HOST_URL}"
-
-# remove node1.${HOST_URL}
-executeIMCommand "remove-node" "node1.${HOST_URL}"
-validateExpectedString ".*\"type\".\:.\"MACHINE_NODE\".*\"host\".\:.\"node1.${HOST_URL}\".*"
-doSleep "1m"  "Wait until Docker machine takes into account /usr/local/swarm/node_list config"
 executeSshCommand "sudo systemctl stop iptables"  # open port 23750
 doGet "http://${NEW_HOST_URL}:23750/info"
-validateExpectedString ".*Nodes\",\"1\".*\[\" ${HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*"
-
-# add node1.${NEW_HOST_URL}
-executeIMCommand "add-node" "node1.${NEW_HOST_URL}"
-validateExpectedString ".*\"type\".\:.\"MACHINE_NODE\".*\"host\".\:.\"node1.${NEW_HOST_URL}\".*"
-executeSshCommand "sudo systemctl stop iptables"  # open port 23750
-doGet "http://${NEW_HOST_URL}:23750/info"
-validateExpectedString ".*Nodes\",\"2\".*\[\" ${HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*\[\" node1.${HOST_URL}\",\"node1.${NEW_HOST_URL}:2375\"\].*"
-############# End of change Codenvy hostname workflow
+validateExpectedString ".*Nodes\",\"2\".*\[\" ${NEW_HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*\[\" node1.${NEW_HOST_URL}\",\"node1.${NEW_HOST_URL}:2375\"\].*"
 
 # add node2
 executeIMCommand "add-node" "node2.${NEW_HOST_URL}"
 validateExpectedString ".*\"type\".\:.\"MACHINE_NODE\".*\"host\".\:.\"node2.${NEW_HOST_URL}\".*"
 executeSshCommand "sudo systemctl stop iptables"  # open port 23750
 doGet "http://${NEW_HOST_URL}:23750/info"
-validateExpectedString ".*Nodes\",\"3\".*\[\" ${HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*\[\" node1.${HOST_URL}\",\"node1.${NEW_HOST_URL}:2375\"\].*\[\" node2.${NEW_HOST_URL}\",\"node2.${NEW_HOST_URL}:2375\"].*"
+validateExpectedString ".*Nodes\",\"3\".*\[\" ${NEW_HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*\[\" node1.${NEW_HOST_URL}\",\"node1.${NEW_HOST_URL}:2375\"\].*\[\" node2.${NEW_HOST_URL}\",\"node2.${NEW_HOST_URL}:2375\"].*"
+
+# remove node1.${NEW_HOST_URL}
+executeIMCommand "remove-node" "node1.${NEW_HOST_URL}"
+validateExpectedString ".*\"type\".\:.\"MACHINE_NODE\".*\"host\".\:.\"node1.${NEW_HOST_URL}\".*"
+doSleep "1m"  "Wait until Docker machine takes into account /usr/local/swarm/node_list config"
+executeSshCommand "sudo systemctl stop iptables"  # open port 23750
+doGet "http://${NEW_HOST_URL}:23750/info"
+validateExpectedString ".*Nodes\",\"1\".*\[\" ${NEW_HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*"
+
+# add node1.${NEW_HOST_URL}
+executeIMCommand "add-node" "node1.${NEW_HOST_URL}"
+validateExpectedString ".*\"type\".\:.\"MACHINE_NODE\".*\"host\".\:.\"node1.${NEW_HOST_URL}\".*"
+executeSshCommand "sudo systemctl stop iptables"  # open port 23750
+doGet "http://${NEW_HOST_URL}:23750/info"
+validateExpectedString ".*Nodes\",\"2\".*\[\" ${NEW_HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*\[\" node1.${NEW_HOST_URL}\",\"node1.${NEW_HOST_URL}:2375\"\].*"
+############# End of change Codenvy hostname workflow
+
 
 # remove node2
 executeIMCommand "remove-node" "node2.${NEW_HOST_URL}"
@@ -107,7 +111,7 @@ executeSshCommand "sudo find /var/lib/puppet/ssl -name node2.${NEW_HOST_URL}.pem
 doSleep "1m"  "Wait until Docker machine takes into account /usr/local/swarm/node_list config"
 executeSshCommand "sudo systemctl stop iptables"  # open port 23750
 doGet "http://${NEW_HOST_URL}:23750/info"
-validateExpectedString ".*Nodes\",\"2\".*\[\" ${HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*\[\" node1.${HOST_URL}\",\"node1.${NEW_HOST_URL}:2375\"\].*"
+validateExpectedString ".*Nodes\",\"2\".*\[\" ${NEW_HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*\[\" node1.${NEW_HOST_URL}\",\"node1.${NEW_HOST_URL}:2375\"\].*"
 
 # remove already removed node2
 executeIMCommand "--valid-exit-code=1" "remove-node" "node2.${NEW_HOST_URL}"
@@ -118,7 +122,7 @@ executeIMCommand "add-node" "node2.${NEW_HOST_URL}"
 validateExpectedString ".*\"type\".\:.\"MACHINE_NODE\".*\"host\".\:.\"node2.${NEW_HOST_URL}\".*"
 executeSshCommand "sudo systemctl stop iptables"  # open port 23750
 doGet "http://${NEW_HOST_URL}:23750/info"
-validateExpectedString ".*Nodes\",\"3\".*\[\" ${HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*\[\" node1.${HOST_URL}\",\"node1.${NEW_HOST_URL}:2375\"\].*\[\" node2.${NEW_HOST_URL}\",\"node2.${NEW_HOST_URL}:2375\"].*"
+validateExpectedString ".*Nodes\",\"3\".*\[\" ${NEW_HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*\[\" node1.${NEW_HOST_URL}\",\"node1.${NEW_HOST_URL}:2375\"\].*\[\" node2.${NEW_HOST_URL}\",\"node2.${NEW_HOST_URL}:2375\"].*"
 
 # remove node1.${NEW_HOST_URL}
 executeIMCommand "remove-node" "node1.${NEW_HOST_URL}"
@@ -126,7 +130,7 @@ validateExpectedString ".*\"type\".\:.\"MACHINE_NODE\".*\"host\".\:.\"node1.${NE
 doSleep "1m"  "Wait until Docker machine takes into account /usr/local/swarm/node_list config"
 executeSshCommand "sudo systemctl stop iptables"  # open port 23750
 doGet "http://${NEW_HOST_URL}:23750/info"
-validateExpectedString ".*Nodes\",\"2\".*\[\" ${HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*\[\" node2.${NEW_HOST_URL}\",\"node2.${NEW_HOST_URL}:2375\"].*"
+validateExpectedString ".*Nodes\",\"2\".*\[\" ${NEW_HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*\[\" node2.${NEW_HOST_URL}\",\"node2.${NEW_HOST_URL}:2375\"].*"
 
 # remove default node
 executeIMCommand "remove-node" "${NEW_HOST_URL}"
@@ -161,7 +165,7 @@ executeIMCommand "add-node" "${NEW_HOST_URL}"
 validateExpectedString ".*\"type\".\:.\"MACHINE_NODE\".*\"host\".\:.\"${NEW_HOST_URL}\".*"
 executeSshCommand "sudo systemctl stop iptables"  # open port 23750
 doGet "http://${NEW_HOST_URL}:23750/info"
-validateExpectedString ".*Nodes\",\"2\".*\[\" ${HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*[\" node2.${NEW_HOST_URL}\",\"node2.${NEW_HOST_URL}:2375\"].*"
+validateExpectedString ".*Nodes\",\"2\".*\[\" ${NEW_HOST_URL}\",\"${NEW_HOST_URL}:2375\"\].*[\" node2.${NEW_HOST_URL}\",\"node2.${NEW_HOST_URL}:2375\"].*"
 
 # add default node again and throw error
 executeIMCommand "--valid-exit-code=1" "add-node" "${NEW_HOST_URL}"
